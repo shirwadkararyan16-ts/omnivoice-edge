@@ -1,5 +1,18 @@
+"""
+FastAPI application for the OmniVoice Edge text-to-speech playground.
+
+This module:
+
+- Loads the OmniVoice model during application startup.
+- Serves the browser-based frontend.
+- Exposes health and telemetry endpoints.
+- Generates speech audio from user-provided text.
+- Returns generation latency, audio duration, and real-time factor
+  measurements through HTTP response headers.
+"""
+
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from backend.telemetry import SystemTelemetry
 from pathlib import Path
 import time
 import uuid
@@ -12,18 +25,22 @@ from fastapi.staticfiles import StaticFiles
 from omnivoice import OmniVoice
 from pydantic import BaseModel
 
+from backend.telemetry import SystemTelemetry
+
 
 MODEL_ID = "k2-fsa/OmniVoice"
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 FRONTEND_DIRECTORY = PROJECT_ROOT / "frontend"
 OUTPUT_DIRECTORY = PROJECT_ROOT / "samples" / "generated"
-SAMPLE_RATE = 24000
+SAMPLE_RATE = 24_000
 
 model: OmniVoice | None = None
 telemetry = SystemTelemetry()
 
 
 class GenerateRequest(BaseModel):
+    """Request body accepted by the speech-generation endpoint."""
+
     text: str
     language: str = "English"
     instruction: str = "female, young adult, American accent"
@@ -31,15 +48,27 @@ class GenerateRequest(BaseModel):
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    """
+    Load the OmniVoice model at startup and release GPU memory at shutdown.
+
+    The model is initialized once when the FastAPI application starts so
+    subsequent generation requests can reuse the same loaded model.
+
+    Args:
+        _app: FastAPI application instance supplied by the framework.
+
+    Yields:
+        Control back to FastAPI while the application is running.
+    """
     global model
 
     print("Loading OmniVoice model...")
 
     model = OmniVoice.from_pretrained(
         MODEL_ID,
-        device_map="cuda:0",
-        dtype=torch.float16,
+        device_map="cpu",
+        dtype=torch.float32,
         load_asr=False,
     )
 
@@ -67,29 +96,68 @@ app.mount(
 
 
 @app.get("/")
-def home():
+def home() -> FileResponse:
+    """
+    Serve the main frontend page.
+
+    Returns:
+        The OmniVoice Edge playground HTML file.
+    """
     return FileResponse(FRONTEND_DIRECTORY / "index.html")
 
 
 @app.get("/health")
-def health() -> dict:
+def health() -> dict[str, object]:
+    """
+    Return the current API, model, and CUDA availability status.
+
+    Returns:
+        A dictionary containing service health and GPU information.
+    """
+    cuda_available = torch.cuda.is_available()
+
     return {
         "status": "ok",
         "model_loaded": model is not None,
-        "cuda_available": torch.cuda.is_available(),
+        "cuda_available": cuda_available,
         "gpu": (
             torch.cuda.get_device_name(0)
-            if torch.cuda.is_available()
+            if cuda_available
             else None
         ),
     }
 
+
 @app.get("/telemetry")
 def get_telemetry() -> dict:
+    """
+    Collect the latest system and GPU telemetry measurements.
+
+    Returns:
+        Current telemetry information reported by ``SystemTelemetry``.
+    """
     return telemetry.collect()
 
+
 @app.post("/generate")
-def generate_speech(request: GenerateRequest):
+def generate_speech(request: GenerateRequest) -> FileResponse:
+    """
+    Generate a WAV audio file from the submitted text.
+
+    The requested diffusion step count is constrained to the supported
+    range of 4 through 64. Generation duration and real-time factor are
+    measured and returned through custom HTTP response headers.
+
+    Args:
+        request: Text, language, voice instruction, and step settings.
+
+    Returns:
+        A WAV audio file containing the generated speech.
+
+    Raises:
+        HTTPException: If the model is unavailable, the input text is
+            empty, or the model does not return audio.
+    """
     if model is None:
         raise HTTPException(
             status_code=503,
@@ -116,6 +184,7 @@ def generate_speech(request: GenerateRequest):
         / f"generated_{uuid.uuid4().hex}.wav"
     )
 
+    # Synchronize CUDA before timing to exclude unfinished GPU operations.
     if torch.cuda.is_available():
         torch.cuda.synchronize()
 
@@ -128,6 +197,7 @@ def generate_speech(request: GenerateRequest):
         num_step=steps,
     )
 
+    # Wait for GPU generation to finish before calculating elapsed time.
     if torch.cuda.is_available():
         torch.cuda.synchronize()
 
@@ -141,6 +211,7 @@ def generate_speech(request: GenerateRequest):
 
     samples = audio[0]
     audio_seconds = len(samples) / SAMPLE_RATE
+
     rtf = (
         generation_seconds / audio_seconds
         if audio_seconds > 0
