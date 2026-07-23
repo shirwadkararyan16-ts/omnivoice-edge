@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+numpy
+torch
+onnx
+onnxruntime-gpu
+soundfile
+psutil
+pydantic
