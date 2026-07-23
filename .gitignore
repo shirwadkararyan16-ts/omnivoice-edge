@@ -42,10 +42,9 @@ Desktop.ini
 project_structure.txt
 
 # -------------------------
-# Model caches
+# Cache
 # -------------------------
 .cache/
-models/cache/
 
 # Generated ONNX external data
 models/onnx/*.onnx.data
@@ -55,3 +54,10 @@ models/tensorrt/cache/
 *.engine
 *.plan
 *.cache
+*.timing
+
+# Generated audio
+samples/generated/*.wav
+
+# Logs
+*.log
