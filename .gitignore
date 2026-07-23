@@ -1,0 +1,57 @@
+# -------------------------
+# Virtual environments
+# -------------------------
+.venv/
+venv/
+env/
+
+# -------------------------
+# Python
+# -------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# -------------------------
+# Environment variables
+# -------------------------
+.env
+.env.*
+
+# -------------------------
+# Jupyter
+# -------------------------
+.ipynb_checkpoints/
+
+# -------------------------
+# VS Code / IDE
+# -------------------------
+.vscode/
+.idea/
+
+# -------------------------
+# Windows / macOS
+# -------------------------
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# -------------------------
+# Temporary files
+# -------------------------
+project_structure.txt
+
+# -------------------------
+# Model caches
+# -------------------------
+.cache/
+models/cache/
+
+# Generated ONNX external data
+models/onnx/*.onnx.data
+
+# TensorRT engine cache
+models/tensorrt/cache/
+*.engine
+*.plan
+*.cache

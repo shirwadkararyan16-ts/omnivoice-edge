@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+  <title>OmniVoice Edge Playground</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+  <main class="container">
+    <h1>OmniVoice Edge Playground</h1>
+
+    <p class="subtitle">
+      Generate speech using OmniVoice and NVIDIA CUDA.
+    </p>
+
+    <section class="panel">
+      <label for="textInput">Text to synthesize</label>
+
+      <textarea
+        id="textInput"
+        rows="5"
+      >Hello, this speech was generated from my custom OmniVoice web application.</textarea>
+
+      <label for="instructionInput">Voice instruction</label>
+
+      <input
+        id="instructionInput"
+        type="text"
+        value="female, young adult, American accent"
+      >
+
+      <label for="stepsInput">
+        Generation steps:
+        <span id="stepsValue">16</span>
+      </label>
+
+      <input
+        id="stepsInput"
+        type="range"
+        min="4"
+        max="32"
+        step="4"
+        value="16"
+      >
+
+      <button id="generateButton">
+        Generate Speech
+      </button>
+
+      <p id="status">Ready</p>
+    </section>
+
+    <section class="metrics">
+      <article>
+        <span>Generation time</span>
+        <strong id="generationTime">—</strong>
+      </article>
+    
+      <article>
+        <span>CPU usage</span>
+        <strong id="cpuUsage">—</strong>
+      </article>
+
+      <article>
+        <span>Process memory</span>
+        <strong id="processMemory">—</strong>
+      </article>
+
+      <article>
+        <span>System RAM</span>
+        <strong id="systemMemory">—</strong>
+      </article>
+
+      <article>
+        <span>GPU utilization</span>
+        <strong id="gpuUtilization">—</strong>
+      </article>
+
+      <article>
+        <span>GPU memory</span>
+        <strong id="gpuMemory">—</strong>
+      </article>
+
+      <article>
+        <span>GPU temperature</span>
+        <strong id="gpuTemperature">—</strong>
+      </article>
+      
+      <article>
+        <span>Audio duration</span>
+        <strong id="audioDuration">—</strong>
+      </article>
+
+      <article>
+        <span>RTF</span>
+        <strong id="rtf">—</strong>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>Generated Audio</h2>
+      <audio id="audioPlayer" controls></audio>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
