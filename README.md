@@ -1,25 +1,289 @@
-1. Project Title
+# OmniVoice Edge: Optimized Local Speech Synthesis with ONNX Runtime & TensorRT
 
-2. Project Overview
+An optimized edge deployment of **OmniVoice Text-to-Speech (TTS)** demonstrating low-latency local inference using **ONNX Runtime**, **TensorRT acceleration**, and a lightweight **FastAPI-based web interface** with real-time telemetry monitoring.
 
-3. Features
+This project focuses on exporting the OmniVoice forward model to ONNX, optimizing inference using TensorRT, benchmarking performance, and providing an interactive browser-based interface for local speech generation.
 
-4. Folder Structure
+---
 
-5. Installation
+# Project Overview
 
-6. Running the Application
+This project demonstrates an optimized deployment pipeline for OmniVoice by combining ONNX Runtime and TensorRT to improve inference performance for local speech synthesis.
 
-7. ONNX Export
+The implementation includes model export, runtime optimization, benchmarking, telemetry monitoring, and an interactive web interface to evaluate optimized inference workflows on NVIDIA GPUs.
 
-8. TensorRT Optimization
+The repository is designed to provide a reproducible workflow for:
 
-9. Benchmark Results
+- Exporting OmniVoice to ONNX
+- Running GPU inference with ONNX Runtime
+- Accelerating inference using TensorRT
+- Benchmarking optimized inference
+- Serving inference through FastAPI
+- Monitoring runtime telemetry through a browser interface
 
-10. Screenshots
+---
 
-11. Limitations
+# Features
 
-12. Future Work
+- ONNX model export
+- ONNX Runtime GPU inference
+- TensorRT acceleration using the ONNX Runtime TensorRT Execution Provider
+- FastAPI REST API backend
+- Interactive HTML/CSS/JavaScript frontend
+- Real-time telemetry monitoring
+- Audio generation and playback
+- Automated benchmarking scripts
+- ONNX model validation
+- Performance comparison across inference backends
 
-13. References# omnivoice-edge# omnivoice-edge
+---
+
+# Repository Structure
+
+```text
+omnivoice-edge/
+│
+├── backend/
+│   ├── main.py
+│   └── telemetry.py
+│
+├── benchmarks/
+│
+├── frontend/
+│   ├── index.html
+│   ├── styles.css
+│   └── app.js
+│
+├── models/
+│   ├── onnx/
+│   │   └── omnivoice_forward.onnx
+│   │
+│   ├── tensorrt/
+│   │
+│   ├── README.md
+│   └── .gitkeep
+│
+├── project_assets/
+│   └── screenshots/
+│
+├── samples/
+│
+├── scripts/
+│   ├── baseline.py
+│   ├── export_onnx.py
+│   ├── validate_onnx.py
+│   ├── test_onnx_runtime.py
+│   └── test_tensorrt_runtime.py
+│
+├── requirements.txt
+├── .gitignore
+└── README.md
+```
+
+---
+
+# Technology Stack
+
+### Programming
+
+- Python
+
+### Deep Learning
+
+- PyTorch
+
+### Inference
+
+- ONNX Runtime
+- NVIDIA TensorRT
+
+### Backend
+
+- FastAPI
+- Uvicorn
+
+### Frontend
+
+- HTML
+- CSS
+- JavaScript
+
+### GPU Computing
+
+- CUDA
+- cuDNN
+
+---
+
+# Installation
+
+Clone the repository
+
+```bash
+git clone https://github.com/shirwadkararyan16-ts/omnivoice-edge.git
+
+cd omnivoice-edge
+```
+
+Create a virtual environment
+
+```bash
+python -m venv .venv
+```
+
+Activate the environment
+
+### Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+### Linux / macOS
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# Running the Application
+
+Start the FastAPI backend
+
+```bash
+uvicorn backend.main:app --reload
+```
+
+Open the frontend by serving or opening
+
+```text
+frontend/index.html
+```
+
+Generate speech through the web interface and monitor runtime telemetry during inference.
+
+---
+
+# ONNX Export
+
+Export the OmniVoice forward model
+
+```bash
+python scripts/export_onnx.py
+```
+
+The exported model is stored under
+
+```text
+models/onnx/
+```
+
+---
+
+# TensorRT Optimization
+
+Benchmark ONNX Runtime
+
+```bash
+python scripts/test_onnx_runtime.py
+```
+
+Benchmark TensorRT
+
+```bash
+python scripts/test_tensorrt_runtime.py
+```
+
+TensorRT engines are automatically generated inside
+
+```text
+models/tensorrt/cache/
+```
+
+---
+
+# Benchmark Results
+
+| Runtime | Average Latency |
+|---------|----------------:|
+| PyTorch Baseline | *(record baseline result)* |
+| ONNX Runtime (CUDA) | ~147 ms |
+| TensorRT | ~15 ms |
+
+> Measurements were collected using the exported ONNX forward model with the TensorRT Execution Provider.
+
+---
+
+# Screenshots
+
+Screenshots are available under
+
+```text
+project_assets/screenshots/
+```
+
+Included screenshots:
+
+- Web Interface
+- Telemetry Dashboard
+- ONNX Runtime Benchmark
+- TensorRT Benchmark
+- TensorRT Engine Cache
+
+---
+
+# Model Artifacts
+
+Large generated model artifacts are intentionally excluded from version control to keep the repository lightweight and reproducible.
+
+Excluded artifacts include:
+
+- TensorRT engine cache
+- ONNX external data (`*.onnx.data`)
+
+These files are automatically regenerated by the provided export and benchmarking scripts.
+
+Refer to
+
+```text
+models/README.md
+```
+
+for additional details.
+
+---
+
+# Limitations
+
+- TensorRT optimization currently targets the exported ONNX forward model rather than the complete OmniVoice inference pipeline.
+- GPU execution requires compatible CUDA, cuDNN, ONNX Runtime GPU, and TensorRT installations.
+- TensorRT engine files are hardware-specific and should be regenerated when using different GPU architectures.
+
+---
+
+# Future Work
+
+- Full pipeline TensorRT optimization
+- Streaming speech generation
+- Quantized ONNX models
+- Dynamic batching
+- Docker deployment
+- Multi-speaker inference support
+- Automated benchmark reporting
+
+---
+
+# References
+
+- OmniVoice
+- ONNX Runtime
+- NVIDIA TensorRT
+- FastAPI
+- PyTorch
